@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.xc.dao.ChapterDao">
+	<!--根据搜索条件查询-->
+	<select id="search" resultType="com.xc.entity.Chapter">
+		SELECT id,title,file,size,time,voice_id,create_date
+		FROM chapter
+		<where>
+			<if test="searchOper=='eq'">
+				${searchField} = #{searchString}
+			</if>
+			<if test="searchOper=='ne'">
+				${searchField} != #{searchString}
+			</if>
+			<if test="searchOper=='cn'">
+				${searchField} like concat('%',#{searchString},'%')
+			</if>
+			and voice_id=#{voice_id}
+		</where>
+		limit #{begin},#{rows}
+	</select>
+
+	<!--查询数量-->
+	<select id="countSearch" resultType="Integer">
+		SELECT count(id)
+		FROM chapter
+		<where>
+			<if test="searchOper=='eq'">
+				${searchField} = #{searchString}
+			</if>
+			<if test="searchOper=='ne'">
+				${searchField} != #{searchString}
+			</if>
+			<if test="searchOper=='cn'">
+				${searchField} like concat('%',#{searchString},'%')
+			</if>
+			and voice_id=#{voice_id}
+		</where>
+	</select>
+	<!--随机查询五个-->
+	<select id="searchFive" resultType="com.xc.entity.Chapter">
+		select * from chapter order by rand() limit 5
+	</select>
+</mapper>

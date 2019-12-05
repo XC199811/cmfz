@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.xc.dao.ArticleDao">
+	<!--通用sql-->
+	<sql id="ARTICLE_SQL">
+		a.id id,a.title title,a.content content,a.create_date create_date,a.author_id author_id,
+		a.status status,a.publish_date publish_date,a.image image,
+		s.image a_photo,s.nickname author
+	</sql>
+	<!--根据搜索条件查询-->
+	<select id="searchLike" resultType="com.xc.entity.Article">
+		SELECT id,title,content,create_date,author_id,status,publish_date,image
+		FROM article
+		<where>
+			<if test="searchOper=='eq'">
+				${searchField} = #{searchString}
+			</if>
+			<if test="searchOper=='ne'">
+				${searchField} != #{searchString}
+			</if>
+			<if test="searchOper=='cn'">
+				${searchField} like concat('%',#{searchString},'%')
+			</if>
+		</where>
+		limit #{begin},#{rows}
+	</select>
+
+	<!--根据搜索条件查询-->
+	<select id="countLike" resultType="Integer">
+		SELECT count(id)
+		FROM article
+		<where>
+			<if test="searchOper=='eq'">
+				${searchField} = #{searchString}
+			</if>
+			<if test="searchOper=='ne'">
+				${searchField} != #{searchString}
+			</if>
+			<if test="searchOper=='cn'">
+				${searchField} like concat('%',#{searchString},'%')
+			</if>
+		</where>
+	</select>
+	<!--随机查询五个-->
+	<select id="searchFive" resultType="com.xc.entity.Article">
+		select <include refid="ARTICLE_SQL"/>
+		from article a LEFT JOIN  shang_shi s ON a.author_id=s.id
+		order by rand() limit 5
+	</select>
+	<!--查询该用户关注的上师文章-->
+	<select id="searchShangShi" resultType="com.xc.entity.Article">
+		SELECT <include refid="ARTICLE_SQL"/>
+		from article a LEFT JOIN shang_shi s ON a.author_id=s.id
+		WHERE a.author_id=#{id}
+	</select>
+	<!--查询所有的通用文章-->
+	<select id="searchNone" resultType="com.xc.entity.Article">
+		SELECT <include refid="ARTICLE_SQL"/>
+		from article a LEFT JOIN shang_shi s ON a.author_id=s.id
+		where a.author_id='0'
+	</select>
+</mapper>
